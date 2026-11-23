@@ -97,12 +97,21 @@ def extraer_entidades(texto_original: str) -> dict:
     if match_equipo:
         entidades["EQUIPO"] = match_equipo.group(1).strip()
 
+    # 7. Extracción de EMOCIÓN / REACCIÓN (cuando hay carga emocional explícita)
+    match_emo = re.search(
+        r"\b(estafad[ao]s?|estafa[s]?|tonteria[s]?|colmo|porqueria[s]?|basura|incompetenc\w*|harto|furios[ao]s?|enojad[ao]s?|verguenza|burla|desastre|robo|indignad[ao]s?|asco|inept\w*|pesim[ao]s?|horrible|bronca|molest[ao]s?|felicidad|feliz|felices|alegri[a]?|alegre|content[ao]s?|rebos[ao]|revos[ao]|genial|espectacular|agradecid[ao]s?|angustiad[ao]s?|desesperad[ao]s?|preocupad[ao]s?|tristeza|triste|decepcionad[ao]s?|estoy mal|me siento mal)\b",
+        texto_norm,
+    )
+    if match_emo:
+        entidades["EMOCION"] = match_emo.group(1).strip()
+
     return entidades
 
 
 def tiene_contexto_operativo(texto_original: str, entidades: dict) -> bool:
     """Verifica si el mensaje contiene términos o entidades operativas reales del dominio agroexportador."""
-    if entidades:
+    entidades_operativas = {k: v for k, v in entidades.items() if k != "EMOCION"}
+    if entidades_operativas:
         return True
     texto_norm = limpiar_texto(texto_original)
     terminos_operativos = {

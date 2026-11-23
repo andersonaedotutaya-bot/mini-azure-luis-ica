@@ -191,6 +191,7 @@ def crear_estado_inicial():
             "FALLA_EQUIPO": 0,
             "CONSULTA_INVENTARIO": 0,
             "SOLICITUD_DESPACHO": 0,
+            "REACCION_EMOCIONAL": 0,
             "INTENCION_NO_CLARA": 0,
         },
         "por_sentimiento": {
@@ -399,18 +400,20 @@ def entender_comando(req: MensajeRequest, user: dict = Depends(get_current_user)
     entidades = extraer_entidades(req.texto)
     es_operativo = tiene_contexto_operativo(req.texto, entidades)
 
-    if confianza < UMBRAL_CONFIANZA or len(tokens) < 2 or (emocion["es_emocional"] and not es_operativo):
-        intencion_final = "INTENCION_NO_CLARA"
-        if emocion["es_emocional"] and not es_operativo:
-            confianza = min(confianza, 0.45)
-        if emocion["es_emocional"] and emocion["tono"] == "ENOJO":
+    if emoc_pura := (emocion["es_emocional"] and not es_operativo):
+        intencion_final = "REACCION_EMOCIONAL"
+        confianza = 0.92 if emocion["tono"] in ("ENOJO", "POSITIVO") else 0.85
+        if emocion["tono"] == "ENOJO":
             accion_sugerida = "DERIVAR_A_SUPERVISOR_RECLAMO_EMOCIONAL"
-        elif emocion["es_emocional"] and emocion["tono"] == "ANGUSTIA":
+        elif emocion["tono"] == "ANGUSTIA":
             accion_sugerida = "DERIVAR_A_SUPERVISOR_MENSAJE_PERSONAL"
-        elif emocion["es_emocional"] and emocion["tono"] == "POSITIVO":
+        elif emocion["tono"] == "POSITIVO":
             accion_sugerida = "REGISTRAR_SATISFACCION_USUARIO"
         else:
             accion_sugerida = "DERIVAR_A_SUPERVISOR"
+    elif confianza < UMBRAL_CONFIANZA or len(tokens) < 2:
+        intencion_final = "INTENCION_NO_CLARA"
+        accion_sugerida = "DERIVAR_A_SUPERVISOR"
     else:
         intencion_final = intencion_pred
         accion_sugerida = ACCIONES_MAP.get((intencion_final, sentimiento), "REVISION_OPERATIVA")
