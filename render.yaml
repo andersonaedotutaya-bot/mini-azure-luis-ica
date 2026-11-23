@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: mini-azure-luis-ica
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt && cd servidor && python entrenar.py
+    startCommand: cd servidor && uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: USER_OPERADOR_NAME
+        sync: false
+      - key: USER_OPERADOR_PASS
+        sync: false
+      - key: USER_SUPERVISOR_NAME
+        sync: false
+      - key: USER_SUPERVISOR_PASS
+        sync: false

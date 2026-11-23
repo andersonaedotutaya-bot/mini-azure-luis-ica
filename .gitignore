@@ -1,0 +1,4 @@
+.env
+__pycache__/
+*.pyc
+servidor/estadisticas_acumuladas.json
