@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal de Reportes Operativos | Usuario de Campo y Planta</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card: #1e293b;
+      --card-border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --danger: #ef4444;
+      --warn: #f59e0b;
+      --ok: #10b981;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 20px;
+    }
+    .container { max-width: 900px; margin: auto; }
+    .header {
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .brand h1 { margin: 0; font-size: 22px; color: #fff; }
+    .brand p { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+    
+    .config-bar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      background: #0f172a;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+    }
+    .config-bar label { font-size: 13px; color: var(--muted); }
+    input[type="text"] {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--card-border);
+      background: #1e293b;
+      color: white;
+      font-size: 13px;
+    }
+    input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--accent); }
+
+    .card {
+      background: var(--card);
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);
+      margin-bottom: 20px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 90px;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      background: #0f172a;
+      color: white;
+      font-size: 14px;
+      resize: vertical;
+      font-family: inherit;
+      margin-bottom: 12px;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: var(--accent); color: #0b1120; }
+    .btn-success { background: var(--ok); color: #0b1120; }
+    .btn-secondary { background: #334155; color: white; border: 1px solid #475569; }
+    .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    .quick-cases { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .pill {
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: #0f172a;
+      border: 1px solid #475569;
+      color: #cbd5e1;
+      cursor: pointer;
+    }
+    .pill:hover { border-color: var(--accent); color: var(--accent); }
+
+    .ticket-box {
+      background: #0f172a;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      padding: 16px;
+      display: none;
+    }
+    .ticket-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 700; }
+    .NEGATIVO { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .POSITIVO { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .NEUTRAL { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.4); }
+    .NO_CLARA { background: rgba(245, 158, 11, 0.2); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.5); }
+    .intent-badge { background: rgba(56, 189, 248, 0.15); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.3); }
+
+    .ent-tag {
+      display: inline-block;
+      background: #1e293b;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin: 2px 4px 2px 0;
+      border: 1px solid #334155;
+    }
+    .ent-key { color: var(--accent); font-weight: 600; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: #0f172a; color: var(--muted); padding: 8px 10px; text-align: left; }
+    td { padding: 8px 10px; border-bottom: 1px solid #334155; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="brand">
+      <h1>Portal de Reportes de Campo y Planta <span style="font-size:13px; color:var(--ok); font-weight:normal;">| ROL: USUARIO / OPERARIO</span></h1>
+      <p>Envío directo de incidencias operativas hacia el Servidor Central NLP — Agroexportadora Ica</p>
+    </div>
+    <div class="config-bar" style="flex-wrap:wrap;">
+      <label for="serverUrl">Servidor Nube/LAN:</label>
+      <input type="text" id="serverUrl" value="https://mini-azure-luis-ica.onrender.com" style="width: 260px;" onkeypress="if(event.key==='Enter') probarConexion()">
+      <button type="button" class="btn btn-secondary" onclick="probarConexion()" style="padding: 7px 14px; font-size: 13px;">🔗 Probar Conexión</button>
+      <span id="connTag" class="badge NEUTRAL" onclick="probarConexion()" style="cursor: pointer;" title="Haz clic para probar conexión">Listo</span>
+    </div>
+  </div>
+
+  <div class="card" id="loginCard" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; padding:14px 20px;">
+    <strong style="font-size:13px; color:var(--accent);">🔐 Sesión Operador:</strong>
+    <input type="text" id="opUser" placeholder="Usuario (ej. operador_ica)" style="width:170px;">
+    <input type="password" id="opPass" placeholder="Contraseña" style="padding:8px 12px; border-radius:6px; border:1px solid var(--card-border); background:#1e293b; color:white; font-size:13px; width:160px;">
+    <button type="button" class="btn btn-primary" onclick="iniciarSesionOp()" style="padding:8px 14px; font-size:13px;">Iniciar Sesión</button>
+    <span id="authTag" class="badge NEGATIVO">No autenticado</span>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0; font-size:16px;">Redactar Reporte Operativo</h3>
+    <textarea id="textoReporte" placeholder="Escribe aquí el reporte con tu redacción habitual, abreviaturas o jerga... Ej: La camara de frio 2 subio a 9 grados con 120 cajas de uva red globe"></textarea>
+    
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="enviarReporte()">📤 Enviar Reporte al Servidor</button>
+      <button class="btn btn-success" onclick="enviarLoteDemo()">⚡ Simular Lote Completo (6 Casos)</button>
+    </div>
+
+    <div style="margin-top:16px; font-size:12px; color:var(--muted); font-weight:600;">Casos de prueba para sustentar ante el profesor:</div>
+    <div class="quick-cases">
+      <button class="pill" onclick="cargarCaso(0)">#1 Calidad (Temp + Cajas)</button>
+      <button class="pill" onclick="cargarCaso(1)">#2 Falla Equipo (Faja transp + Técnico)</button>
+      <button class="pill" onclick="cargarCaso(2)">#3 Consulta Stock (Espárrago verde)</button>
+      <button class="pill" onclick="cargarCaso(3)">#4 Despacho (Pallets + Lote L-804)</button>
+      <button class="pill" onclick="cargarCaso(4)">#5 Calidad con error ortog. (Humdad alta packing)</button>
+      <button class="pill" onclick="cargarCaso(5)" style="border-color:var(--warn); color:var(--warn);">#6 Caso Ambiguo (Fallback &lt; 0.65)</button>
+      <button class="pill" onclick="cargarCaso(6)" style="border-color:var(--danger); color:#fca5a5;">#7 Reclamo Emocional (Enojo: "Me siento estafado")</button>
+    </div>
+  </div>
+
+  <div class="card ticket-box" id="ticketBox">
+    <div class="ticket-header">
+      <div>
+        <strong style="color:var(--ok); font-size:15px;">✓ Reporte Registrado y Procesado por el Servidor</strong>
+        <div style="font-size:12px; color:var(--muted); margin-top:2px;" id="ticketHora"></div>
+      </div>
+      <span class="badge" id="ticketAccionBadge"></span>
+    </div>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:12px;">
+      <div>
+        <div style="font-size:11px; color:var(--muted); text-transform:uppercase;">Intención Reconocida</div>
+        <div style="margin-top:4px;" id="ticketIntencion"></div>
+      </div>
+      <div>
+        <div style="font-size:11px; color:var(--muted); text-transform:uppercase;">Tono / Sentimiento</div>
+        <div style="margin-top:4px;" id="ticketSentimiento"></div>
+      </div>
+      <div>
+        <div style="font-size:11px; color:var(--muted); text-transform:uppercase;">Acción de Negocio Asignada</div>
+        <div style="margin-top:4px; font-weight:bold;" id="ticketAccion"></div>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:11px; color:var(--muted); text-transform:uppercase; margin-bottom:4px;">Entidades Identificadas Automáticamente:</div>
+      <div id="ticketEntidades"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h4 style="margin:0 0 10px 0; font-size:14px;">Mis Reportes Enviados en este Turno</h4>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:75px;">Hora</th>
+          <th>Mensaje Enviado</th>
+          <th style="width:170px;">Intención Asignada</th>
+          <th style="width:190px;">Acción Sugerida</th>
+        </tr>
+      </thead>
+      <tbody id="tablaMisReportes">
+        <tr><td colspan="4" style="text-align:center; color:var(--muted); padding:15px;">No has enviado reportes en esta sesión.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  const CASOS_DEMO = [
+    "La camara de frio 2 subio a 9 grados con 120 cajas de uva red globe",
+    "Se malogro la faja transp de la linea 1 urge tecnico",
+    "Cuantas jabas de esparrago verde tenemos en stock hoy",
+    "Programar salida de camion con 20 pallets lote L-804 al puerto",
+    "Humdad alta en packing 3 revisen las cajas de esparrago verde",
+    "Oe revisa eso rapido antes q vengan",
+    "Me siento estafado esto es una tonteria"
+  ];
+
+  let misReportes = [];
+  let authToken = "";
+
+  async function iniciarSesionOp() {
+    const username = document.getElementById("opUser").value.trim();
+    const password = document.getElementById("opPass").value;
+    const authTag = document.getElementById("authTag");
+    if (!username || !password) {
+      alert("Ingrese usuario y contraseña.");
+      return;
+    }
+    try {
+      const res = await fetch(`${getBaseUrl()}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        authTag.textContent = `Error ${res.status}`;
+        authTag.className = "badge NEGATIVO";
+        alert(data.detail || "Credenciales inválidas");
+        return;
+      }
+      authToken = data.access_token;
+      authTag.textContent = `✔ ${data.username} (${data.role})`;
+      authTag.className = "badge POSITIVO";
+    } catch (e) {
+      alert("No se pudo conectar al servidor para iniciar sesión.");
+    }
+  }
+
+  function getBaseUrl() {
+    return document.getElementById("serverUrl").value.replace(/\/$/, "");
+  }
+
+  async function probarConexion() {
+    const tag = document.getElementById("connTag");
+    tag.textContent = "Conectando...";
+    tag.className = "badge NEUTRAL";
+    try {
+      const res = await fetch(`${getBaseUrl()}/`, { method: "GET" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      tag.textContent = "✔ Conectado (HTTP 200)";
+      tag.className = "badge POSITIVO";
+    } catch (err) {
+      tag.textContent = "✖ Error de Conexión";
+      tag.className = "badge NEGATIVO";
+    }
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    if (window.location.origin.startsWith("http")) {
+      document.getElementById("serverUrl").value = window.location.origin;
+    }
+    probarConexion();
+  });
+
+  function cargarCaso(idx) {
+    if (CASOS_DEMO[idx]) {
+      document.getElementById("textoReporte").value = CASOS_DEMO[idx];
+      enviarReporte();
+    }
+  }
+
+  async function enviarReporte() {
+    const txtArea = document.getElementById("textoReporte");
+    const texto = txtArea.value.trim();
+    if (!texto) {
+      alert("Por favor ingrese el texto de su reporte.");
+      return;
+    }
+
+    const tag = document.getElementById("connTag");
+    tag.textContent = "Enviando...";
+    tag.className = "badge NEUTRAL";
+
+    try {
+      const headers = { "Content-Type": "application/json" };
+      if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
+      const res = await fetch(`${getBaseUrl()}/nlp/entender-comando`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ texto })
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(`HTTP ${res.status}: ${errData.detail || 'Error'}`);
+      }
+      const data = await res.json();
+
+      tag.textContent = "Enviado con Éxito (HTTP 200)";
+      tag.className = "badge POSITIVO";
+
+      mostrarTicket(data);
+      misReportes.unshift(data);
+      actualizarTablaMisReportes();
+      txtArea.value = "";
+
+    } catch (err) {
+      tag.textContent = err.message || "Error al Conectar con Servidor";
+      tag.className = "badge NEGATIVO";
+      alert(`${err.message}\n\nSi es HTTP 401, inicia sesión primero con usuario operador_ica.`);
+    }
+  }
+
+  function mostrarTicket(data) {
+    const box = document.getElementById("ticketBox");
+    box.style.display = "block";
+
+    document.getElementById("ticketHora").textContent = `Hora de recepción en servidor: ${data.hora || new Date().toLocaleTimeString()}`;
+
+    const esNoClara = data.intencion === "INTENCION_NO_CLARA";
+    document.getElementById("ticketIntencion").innerHTML = `<span class="badge ${esNoClara ? 'NO_CLARA' : 'intent-badge'}">${data.intencion}</span> <small style="color:var(--muted);">(${data.confianza_intencion})</small>`;
+    
+    let sentHtml = `<span class="badge ${data.sentimiento}">${data.sentimiento}</span>`;
+    if (data.reaccion_emocional && data.reaccion_emocional.includes("ENOJO")) {
+      sentHtml += ` <span class="badge NEGATIVO" style="margin-left:4px;">🚨 REACCIÓN: ${data.reaccion_emocional.replace('_', ' ')}</span>`;
+    }
+    document.getElementById("ticketSentimiento").innerHTML = sentHtml;
+    document.getElementById("ticketAccion").textContent = data.accion_sugerida;
+
+    const badgeAccion = document.getElementById("ticketAccionBadge");
+    if (data.accion_sugerida.includes("ALERTA") || data.accion_sugerida.includes("URGENTE")) {
+      badgeAccion.className = "badge NEGATIVO";
+      badgeAccion.textContent = "PRIORIDAD ALTA / URGENTE";
+    } else if (esNoClara) {
+      badgeAccion.className = "badge NO_CLARA";
+      badgeAccion.textContent = "DERIVADO A SUPERVISOR";
+    } else {
+      badgeAccion.className = "badge POSITIVO";
+      badgeAccion.textContent = "PROCESADO CONFORME";
+    }
+
+    const divEnts = document.getElementById("ticketEntidades");
+    if (data.entidades && Object.keys(data.entidades).length > 0) {
+      divEnts.innerHTML = Object.entries(data.entidades)
+        .map(([k, v]) => `<span class="ent-tag"><span class="ent-key">${k}:</span> ${v}</span>`)
+        .join(" ");
+    } else {
+      divEnts.innerHTML = '<span style="color:var(--muted); font-size:12px;">No se identificaron entidades específicas en el mensaje.</span>';
+    }
+  }
+
+  function actualizarTablaMisReportes() {
+    const tbody = document.getElementById("tablaMisReportes");
+    if (misReportes.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--muted); padding:15px;">No has enviado reportes en esta sesión.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = misReportes.map(r => {
+      const esNoClara = r.intencion === "INTENCION_NO_CLARA";
+      return `<tr>
+        <td style="color:var(--muted);">${r.hora || '--:--'}</td>
+        <td><strong>${r.texto_original}</strong></td>
+        <td><span class="badge ${esNoClara ? 'NO_CLARA' : 'intent-badge'}">${r.intencion}</span></td>
+        <td><strong>${r.accion_sugerida}</strong></td>
+      </tr>`;
+    }).join("");
+  }
+
+  async function enviarLoteDemo() {
+    for (let i = 0; i < CASOS_DEMO.length; i++) {
+      document.getElementById("textoReporte").value = CASOS_DEMO[i];
+      await enviarReporte();
+      await new Promise(r => setTimeout(r, 400));
+    }
+  }
+</script>
+</body>
+</html>

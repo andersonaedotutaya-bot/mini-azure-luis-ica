@@ -314,6 +314,15 @@ def portal_web():
     return FileResponse(ruta_portal, media_type="text/html")
 
 
+@app.get("/cliente", include_in_schema=False)
+def cliente_operador_web():
+    """Sirve la interfaz dedicada del Integrante 2 (Operador) en la nube."""
+    ruta_cliente = os.path.join(ROOT_DIR, "cliente_operador.html")
+    if not os.path.isfile(ruta_cliente):
+        raise HTTPException(status_code=404, detail="Archivo cliente_operador.html no encontrado.")
+    return FileResponse(ruta_cliente, media_type="text/html")
+
+
 @app.post("/auth/login")
 def login(req: LoginRequest):
     """Autentica al usuario contra variables de entorno y devuelve un token JWT con su rol."""
