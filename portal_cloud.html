@@ -7,287 +7,525 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --bg: #0b1120;
-      --card: #1e293b;
-      --card-border: #334155;
-      --text: #f8fafc;
+      --bg: #070d19;
+      --bg-grad: radial-gradient(circle at 15% 10%, rgba(56, 189, 248, 0.08), transparent 40%),
+                 radial-gradient(circle at 85% 90%, rgba(16, 185, 129, 0.07), transparent 40%);
+      --card: #111b2e;
+      --card-2: #0b1322;
+      --card-border: #23324d;
+      --text: #f1f5f9;
       --muted: #94a3b8;
       --accent: #38bdf8;
+      --accent-2: #0ea5e9;
+      --purple: #a855f7;
       --danger: #ef4444;
       --warn: #f59e0b;
       --ok: #10b981;
     }
     * { box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      background-image: var(--bg-grad);
       color: var(--text);
       margin: 0;
       padding: 20px;
+      min-height: 100vh;
     }
-    .container { max-width: 1280px; margin: auto; }
+    .container { max-width: 1320px; margin: auto; }
+    .hidden { display: none !important; }
+
+    /* LOGIN */
+    .login-wrap {
+      min-height: calc(100vh - 40px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     .login-box {
-      max-width: 430px;
-      margin: 60px auto;
+      width: 100%;
+      max-width: 440px;
       background: var(--card);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 28px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
     }
-    .login-box h1 { margin: 0 0 6px; font-size: 22px; }
-    .login-box p { margin: 0 0 20px; font-size: 13px; color: var(--muted); }
-    .field { margin-bottom: 14px; }
-    .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--ok));
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      color: #070d19;
+      font-weight: 800;
+    }
+    .login-box h1 { margin: 0; font-size: 21px; letter-spacing: -0.3px; }
+    .login-box .subtitle { margin: 4px 0 18px; font-size: 13px; color: var(--muted); }
+    .server-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--card-2);
+      border: 1px solid var(--card-border);
+      margin-bottom: 20px;
+      color: var(--muted);
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--warn); }
+    .dot.ok { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+    .dot.err { background: var(--danger); }
+
+    .field { margin-bottom: 16px; position: relative; }
+    .field label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
     .field input {
       width: 100%;
-      padding: 10px 12px;
-      border-radius: 8px;
+      padding: 11px 14px;
+      border-radius: 9px;
       border: 1px solid var(--card-border);
-      background: #0f172a;
+      background: var(--card-2);
       color: var(--text);
       font-size: 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
-    .field input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+    .field input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+    .toggle-pass {
+      position: absolute;
+      right: 10px;
+      top: 31px;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px;
+    }
+    .roles-info {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--card-border);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .role-card-mini {
+      background: var(--card-2);
+      border: 1px solid var(--card-border);
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .role-card-mini strong { display: block; color: var(--text); margin-bottom: 3px; }
+
+    /* HEADER / TOPBAR */
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid var(--card-border);
-      padding-bottom: 16px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 16px 22px;
       margin-bottom: 20px;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 14px;
     }
-    .brand h1 { margin: 0; font-size: 22px; }
-    .brand p { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+    .brand h1 { margin: 0; font-size: 20px; display: flex; align-items: center; gap: 10px; }
+    .brand p { margin: 4px 0 0; font-size: 12.5px; color: var(--muted); }
+    .header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .role-pill {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 12px;
-      border-radius: 20px;
+      padding: 7px 13px;
+      border-radius: 999px;
       font-size: 12px;
       font-weight: 700;
-      background: rgba(56, 189, 248, 0.15);
+      background: rgba(56, 189, 248, 0.14);
       color: var(--accent);
       border: 1px solid rgba(56, 189, 248, 0.35);
     }
-    .role-pill.sup { background: rgba(16, 185, 129, 0.15); color: var(--ok); border-color: rgba(16, 185, 129, 0.35); }
+    .role-pill.sup {
+      background: rgba(16, 185, 129, 0.14);
+      color: var(--ok);
+      border-color: rgba(16, 185, 129, 0.35);
+    }
+
+    /* BOTONES */
     .btn {
       padding: 9px 15px;
-      border-radius: 7px;
+      border-radius: 8px;
       font-size: 13px;
       font-weight: 700;
       cursor: pointer;
       border: none;
-      transition: opacity 0.2s;
+      transition: transform 0.15s, opacity 0.15s, background 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
-    .btn:hover { opacity: 0.9; }
-    .btn-primary { background: var(--accent); color: #0b1120; }
-    .btn-danger { background: var(--danger); color: white; }
-    .btn-secondary { background: #334155; color: white; border: 1px solid #475569; }
-    .btn-warn { background: var(--warn); color: #0b1120; }
+    .btn:hover { opacity: 0.92; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #070d19; }
+    .btn-success { background: var(--ok); color: #070d19; }
+    .btn-danger { background: rgba(239, 68, 68, 0.9); color: white; }
+    .btn-secondary { background: #1e293b; color: var(--text); border: 1px solid var(--card-border); }
+    .btn-warn { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+
+    /* CARDS & GRIDS */
     .card {
       background: var(--card);
       padding: 20px;
-      border-radius: 10px;
+      border-radius: 14px;
       border: 1px solid var(--card-border);
       margin-bottom: 20px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
     }
+    .op-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 960px) { .op-grid { grid-template-columns: 1fr; } }
+
     textarea {
       width: 100%;
-      height: 95px;
-      padding: 12px;
-      border-radius: 8px;
+      height: 115px;
+      padding: 13px;
+      border-radius: 10px;
       border: 1px solid var(--card-border);
-      background: #0f172a;
+      background: var(--card-2);
       color: var(--text);
       font-size: 14px;
       font-family: inherit;
-      margin-bottom: 12px;
+      resize: vertical;
+      margin-bottom: 10px;
     }
-    .quick-cases { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .quick-cases { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
     .pill {
-      font-size: 12px;
-      padding: 5px 12px;
-      border-radius: 20px;
-      background: #0f172a;
-      border: 1px solid #475569;
+      font-size: 11.5px;
+      padding: 6px 11px;
+      border-radius: 999px;
+      background: var(--card-2);
+      border: 1px solid var(--card-border);
       color: #cbd5e1;
       cursor: pointer;
+      transition: all 0.15s;
     }
-    .pill:hover { border-color: var(--accent); color: var(--accent); }
+    .pill:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+
+    /* KPIs */
     .kpis {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 16px;
       margin-bottom: 20px;
     }
     .kpi-card {
       background: var(--card);
-      padding: 16px 20px;
-      border-radius: 10px;
+      padding: 18px 20px;
+      border-radius: 14px;
       border: 1px solid var(--card-border);
+      border-top: 3px solid var(--accent);
     }
-    .kpi-title { font-size: 12px; color: var(--muted); text-transform: uppercase; font-weight: 700; }
-    .kpi-val { font-size: 30px; font-weight: 800; margin-top: 6px; }
+    .kpi-card.ok { border-top-color: var(--ok); }
+    .kpi-card.warn { border-top-color: var(--warn); }
+    .kpi-card.danger { border-top-color: var(--danger); }
+    .kpi-title { font-size: 11.5px; color: var(--muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.4px; }
+    .kpi-val { font-size: 32px; font-weight: 800; margin: 6px 0 2px; }
+    .kpi-sub { font-size: 11.5px; color: var(--muted); }
+
+    /* CHARTS */
     .charts-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 20px;
       margin-bottom: 20px;
     }
-    @media (max-width: 900px) { .charts-row { grid-template-columns: 1fr; } }
-    .chart-box { position: relative; height: 210px; }
+    @media (max-width: 960px) { .charts-row { grid-template-columns: 1fr; } }
+    .chart-box { position: relative; height: 225px; }
+
+    /* TABLA & BADGES */
+    .table-tools {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .filter-input, .filter-select {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      background: var(--card-2);
+      color: var(--text);
+      font-size: 12.5px;
+    }
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
     th, td { padding: 11px 10px; text-align: left; border-bottom: 1px solid var(--card-border); vertical-align: top; }
-    th { color: var(--muted); font-size: 11px; text-transform: uppercase; background: #0f172a; }
+    th { color: var(--muted); font-size: 11px; text-transform: uppercase; background: var(--card-2); letter-spacing: 0.4px; }
+    tbody tr:hover { background: rgba(56, 189, 248, 0.04); }
+
     .badge {
       display: inline-block;
-      padding: 3px 8px;
-      border-radius: 5px;
+      padding: 3px 9px;
+      border-radius: 6px;
       font-size: 11px;
       font-weight: 700;
     }
-    .POSITIVO { background: rgba(16, 185, 129, 0.2); color: #34d399; }
-    .NEUTRAL { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; }
-    .NEGATIVO { background: rgba(239, 68, 68, 0.2); color: #f87171; }
-    .NO_CLARA { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
-    .EMOCIONAL { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; }
-    .intent-badge { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+    .POSITIVO { background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .NEUTRAL { background: rgba(148, 163, 184, 0.18); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); }
+    .NEGATIVO { background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .NO_CLARA { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
+    .EMOCIONAL { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.4); }
+    .intent-badge { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+
     .ent-tag {
       display: inline-block;
-      background: #0f172a;
-      border: 1px solid #475569;
-      padding: 2px 7px;
-      border-radius: 4px;
+      background: var(--card-2);
+      border: 1px solid var(--card-border);
+      padding: 2px 8px;
+      border-radius: 5px;
       font-size: 11px;
-      margin: 2px;
+      margin: 2px 3px 2px 0;
     }
     .ent-key { color: var(--accent); font-weight: 700; }
-    .msg-error {
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(239, 68, 68, 0.4);
-      color: #fca5a5;
-      padding: 10px 12px;
-      border-radius: 8px;
+
+    .ent-bar-row { margin-bottom: 10px; }
+    .ent-bar-top { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+    .ent-bar-track { height: 7px; background: var(--card-2); border-radius: 999px; overflow: hidden; }
+    .ent-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--ok)); border-radius: 999px; }
+
+    .alert-box {
+      padding: 11px 14px;
+      border-radius: 9px;
       font-size: 13px;
       margin-top: 12px;
       display: none;
     }
-    .hidden { display: none !important; }
+    .alert-box.error {
+      background: rgba(239, 68, 68, 0.14);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+    .alert-box.warn {
+      background: rgba(245, 158, 11, 0.14);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fde68a;
+    }
+    .conf-track {
+      width: 100%;
+      height: 6px;
+      background: var(--card-2);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .conf-fill { height: 100%; background: var(--ok); transition: width 0.3s; }
   </style>
 </head>
 <body>
 <div class="container">
 
   <!-- PANTALLA DE LOGIN -->
-  <div id="vistaLogin" class="login-box">
-    <h1>Mini-Azure LUIS v2</h1>
-    <p>Agroexportadora Ica — Acceso Seguro por Rol</p>
-    <div class="field">
-      <label for="loginUser">Usuario</label>
-      <input type="text" id="loginUser" placeholder="Ingrese su usuario" autocomplete="username">
+  <div id="vistaLogin" class="login-wrap">
+    <div class="login-box">
+      <div class="brand-logo">
+        <div class="logo-icon">🍇</div>
+        <div>
+          <h1>Mini-Azure LUIS v2</h1>
+          <div style="font-size:12px; color:var(--muted);">Agroexportadora Ica — NLP en la Nube</div>
+        </div>
+      </div>
+      <p class="subtitle">Inicia sesión con tu perfil autorizado para acceder al sistema.</p>
+
+      <div class="server-status" id="statusLogin">
+        <span class="dot" id="dotLogin"></span>
+        <span id="txtLoginStatus">Verificando servidor en la nube...</span>
+      </div>
+
+      <div class="field">
+        <label for="loginUser">Usuario</label>
+        <input type="text" id="loginUser" placeholder="Ej: operador_ica o supervisor_ica" autocomplete="username"
+               onkeydown="if(event.key==='Enter') document.getElementById('loginPass').focus()">
+      </div>
+      <div class="field">
+        <label for="loginPass">Contraseña</label>
+        <input type="password" id="loginPass" placeholder="Ingrese su contraseña" autocomplete="current-password"
+               onkeydown="if(event.key==='Enter') iniciarSesion()">
+        <button type="button" class="toggle-pass" onclick="togglePass()" title="Mostrar/Ocultar">👁️</button>
+      </div>
+      <button class="btn btn-primary" style="width:100%; justify-content:center; padding:12px;" onclick="iniciarSesion()">
+        🔐 Iniciar Sesión
+      </button>
+      <div id="loginError" class="alert-box error"></div>
+
+      <div class="roles-info">
+        <div class="role-card-mini">
+          <strong>👤 Rol OPERADOR</strong>
+          Envía reportes operativos y consulta la respuesta inmediata.
+        </div>
+        <div class="role-card-mini">
+          <strong>🛡️ Rol SUPERVISOR</strong>
+          Visualiza dashboard, KPIs, gráficos y bitácora global.
+        </div>
+      </div>
     </div>
-    <div class="field">
-      <label for="loginPass">Contraseña</label>
-      <input type="password" id="loginPass" placeholder="Ingrese su contraseña" autocomplete="current-password">
-    </div>
-    <button class="btn btn-primary" style="width:100%; padding:11px;" onclick="iniciarSesion()">Iniciar Sesión</button>
-    <div id="loginError" class="msg-error"></div>
   </div>
 
-  <!-- VISTA OPERADOR (SOLO ENVÍO DE REPORTES) -->
+  <!-- VISTA OPERADOR -->
   <div id="vistaOperador" class="hidden">
     <div class="header">
       <div class="brand">
-        <h1>Portal de Reportes Operativos</h1>
-        <p>Ingreso de comentarios de campo, cámaras de frío, empaque y logística</p>
+        <h1>🍇 Portal de Reportes Operativos</h1>
+        <p>Ingreso de incidencias de campo, cámaras de frío, empaque y logística — Agroexportadora Ica</p>
       </div>
-      <div style="display:flex; gap:10px; align-items:center;">
+      <div class="header-actions">
         <span class="role-pill" id="badgeOperador">👤 OPERADOR</span>
-        <button class="btn btn-secondary" onclick="cerrarSesion()">Cerrar Sesión</button>
+        <button class="btn btn-secondary" onclick="cerrarSesion()">🚪 Cerrar Sesión</button>
       </div>
     </div>
 
-    <div class="card">
-      <h3 style="margin-top:0;">Nuevo Reporte Operativo</h3>
-      <textarea id="txtMensaje" placeholder="Ej: La camara de frio 2 subio a 9 grados con 120 cajas de uva red globe..."></textarea>
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn btn-primary" onclick="enviarReporte()">Enviar Reporte</button>
-        <button class="btn btn-warn" onclick="probarAccesoDenegado()">Probar Acceso Dashboard (Demo 403)</button>
-      </div>
-      <div class="quick-cases">
-        <span class="pill" onclick="cargarEjemplo('La camara de frio 2 subio a 9 grados con 120 cajas de uva red globe')">#1 Calidad Crítica</span>
-        <span class="pill" onclick="cargarEjemplo('Faja transportadora de linea 1 detenida por falla electrica')">#2 Falla Equipo</span>
-        <span class="pill" onclick="cargarEjemplo('Cuantos pallets de esparrago verde quedan en almacen central')">#3 Stock</span>
-        <span class="pill" onclick="cargarEjemplo('Programar salida de camion con 20 pallets lote L-804 al puerto')">#4 Despacho</span>
-        <span class="pill" onclick="cargarEjemplo('Humdad alta en packing 3 revisen las cajas de esparrago verde')">#5 Error Ortográfico</span>
-        <span class="pill" onclick="cargarEjemplo('Me siento estafado esto es una tonteria')">#6 Reclamo Emocional</span>
-        <span class="pill" onclick="cargarEjemplo('Estoy que reboso de felicidad todo salio excelente')">#7 Satisfacción</span>
-      </div>
-      <div id="operadorError" class="msg-error"></div>
-    </div>
+    <div class="op-grid">
+      <div>
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3 style="margin:0; font-size:16px;">📝 Redactar Reporte</h3>
+            <span id="charCount" style="font-size:11.5px; color:var(--muted);">0 caracteres</span>
+          </div>
+          <textarea id="txtMensaje" oninput="actualizarContador()"
+            placeholder="Escribe con tu redacción habitual, abreviaturas o jerga...&#10;Ej: La camara de frio 2 subio a 9 grados con 120 cajas de uva red globe"></textarea>
 
-    <div id="ticketResultado" class="card hidden">
-      <h3 style="margin-top:0; color:var(--ok);">✅ Reporte Procesado y Analizado</h3>
-      <div id="ticketContenido" style="font-size:14px; line-height:1.8;"></div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="enviarReporte()">📤 Enviar Reporte</button>
+            <button class="btn btn-success" onclick="simularLoteOperador()">⚡ Simular Lote (7 Casos)</button>
+            <button class="btn btn-warn" onclick="probarAccesoDenegado()">🔒 Probar Bloqueo 403</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('txtMensaje').value=''; actualizarContador();">Limpiar</button>
+          </div>
+
+          <div style="margin-top:16px; font-size:12px; color:var(--muted); font-weight:600;">Casos rápidos de prueba:</div>
+          <div class="quick-cases">
+            <span class="pill" onclick="cargarEjemplo('La camara de frio 2 subio a 9 grados con 120 cajas de uva red globe')">🌡️ Calidad Crítica</span>
+            <span class="pill" onclick="cargarEjemplo('Faja transportadora de linea 1 detenida por falla electrica')">⚙️ Falla Equipo</span>
+            <span class="pill" onclick="cargarEjemplo('Cuantos pallets de esparrago verde quedan en almacen central')">📦 Stock</span>
+            <span class="pill" onclick="cargarEjemplo('Programar salida de camion con 20 pallets lote L-804 al puerto')">🚛 Despacho</span>
+            <span class="pill" onclick="cargarEjemplo('Humdad alta en packing 3 revisen las cajas de esparrago verde')">✍️ Error Ortográfico</span>
+            <span class="pill" onclick="cargarEjemplo('Oe revisa eso rapido antes q vengan')">❓ Ambiguo (&lt;0.65)</span>
+            <span class="pill" onclick="cargarEjemplo('Me siento estafado esto es una tonteria')">🚨 Reclamo Emocional</span>
+            <span class="pill" onclick="cargarEjemplo('Estoy que reboso de felicidad todo salio excelente')">😊 Satisfacción</span>
+          </div>
+          <div id="operadorError" class="alert-box warn"></div>
+        </div>
+      </div>
+
+      <div>
+        <div id="ticketResultado" class="card">
+          <h3 style="margin-top:0; font-size:15px; color:var(--accent);">🎫 Respuesta Inmediata del Motor NLP</h3>
+          <div id="ticketContenido" style="font-size:13.5px; line-height:1.7; color:var(--muted);">
+            Envía un mensaje para ver aquí la intención detectada, el sentimiento, las entidades extraídas y la acción sugerida.
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-top:0; font-size:15px;">🕒 Mis Envíos en este Turno</h3>
+          <div id="misEnviosLista" style="font-size:12.5px; color:var(--muted);">Aún no has enviado reportes.</div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- VISTA SUPERVISOR (DASHBOARD Y ESTADÍSTICAS) -->
+  <!-- VISTA SUPERVISOR -->
   <div id="vistaSupervisor" class="hidden">
     <div class="header">
       <div class="brand">
-        <h1>Panel de Supervisión y Analítica NLP</h1>
-        <p>Monitoreo en tiempo real — Agroexportadora Ica (Nube)</p>
+        <h1>🛡️ Panel de Supervisión y Analítica NLP <span class="dot ok" style="display:inline-block;"></span></h1>
+        <p id="subtituloSup">Monitoreo en tiempo real — Agroexportadora Ica (Nube)</p>
       </div>
-      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <div class="header-actions">
         <span class="role-pill sup" id="badgeSupervisor">🛡️ SUPERVISOR</span>
-        <button class="btn btn-secondary" onclick="actualizarDashboard()">Refrescar</button>
-        <button class="btn btn-danger" onclick="reiniciarStats()">Reiniciar Sesión</button>
-        <button class="btn btn-secondary" onclick="cerrarSesion()">Cerrar Sesión</button>
+        <button class="btn btn-secondary" onclick="actualizarDashboard()">🔄 Refrescar</button>
+        <button class="btn btn-secondary" onclick="exportarCSV()">📥 Exportar CSV</button>
+        <button class="btn btn-danger" onclick="reiniciarStats()">🗑️ Reiniciar</button>
+        <button class="btn btn-secondary" onclick="cerrarSesion()">🚪 Salir</button>
       </div>
     </div>
 
     <div class="kpis">
       <div class="kpi-card">
-        <div class="kpi-title">Total Mensajes</div>
+        <div class="kpi-title">Total Reportes</div>
         <div class="kpi-val" id="kpiTotal" style="color:var(--accent);">0</div>
+        <div class="kpi-sub">Mensajes procesados en la sesión</div>
       </div>
-      <div class="kpi-card">
+      <div class="kpi-card ok">
         <div class="kpi-title">Confianza Promedio</div>
         <div class="kpi-val" id="kpiConf" style="color:var(--ok);">0%</div>
+        <div class="kpi-sub">Certeza del clasificador LUIS</div>
       </div>
-      <div class="kpi-card">
-        <div class="kpi-title">Tasa Derivación</div>
+      <div class="kpi-card warn">
+        <div class="kpi-title">Tasa de Derivación</div>
         <div class="kpi-val" id="kpiDeriv" style="color:var(--warn);">0%</div>
+        <div class="kpi-sub">Ambiguos o reclamos derivados</div>
       </div>
-      <div class="kpi-card">
+      <div class="kpi-card danger">
         <div class="kpi-title">Alertas Críticas</div>
         <div class="kpi-val" id="kpiAlertas" style="color:var(--danger);">0</div>
+        <div class="kpi-sub">Incidentes urgentes de calidad/equipo</div>
       </div>
     </div>
 
     <div class="charts-row">
       <div class="card">
-        <h3 style="margin-top:0; font-size:15px;">Distribución por Intención</h3>
+        <h3 style="margin-top:0; font-size:15px;">📊 Distribución por Intención</h3>
         <div class="chart-box"><canvas id="chartIntencion"></canvas></div>
       </div>
       <div class="card">
-        <h3 style="margin-top:0; font-size:15px;">Polaridad de Sentimiento & Entidades Top</h3>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:center;">
+        <h3 style="margin-top:0; font-size:15px;">💬 Polaridad de Sentimiento & Top Entidades</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:center;">
           <div class="chart-box"><canvas id="chartSentimiento"></canvas></div>
-          <ul id="listaEntidades" style="font-size:13px; color:var(--muted); padding-left:18px; margin:0;">
-            <li>Sin datos aún</li>
-          </ul>
+          <div id="listaEntidades" style="font-size:12.5px; color:var(--muted);">Sin datos aún</div>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <h3 style="margin-top:0; font-size:15px;">Bitácora de Comunicaciones Recientes</h3>
+      <div class="table-tools">
+        <h3 style="margin:0; font-size:15px;">📋 Bitácora de Comunicaciones Recientes</h3>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <input type="text" id="filtroTexto" class="filter-input" placeholder="Buscar mensaje o entidad..." oninput="renderTablaBitacora()">
+          <select id="filtroIntencion" class="filter-select" onchange="renderTablaBitacora()">
+            <option value="">Todas las intenciones</option>
+            <option value="REPORTE_CALIDAD">REPORTE_CALIDAD</option>
+            <option value="FALLA_EQUIPO">FALLA_EQUIPO</option>
+            <option value="CONSULTA_INVENTARIO">CONSULTA_INVENTARIO</option>
+            <option value="SOLICITUD_DESPACHO">SOLICITUD_DESPACHO</option>
+            <option value="REACCION_EMOCIONAL">REACCION_EMOCIONAL</option>
+            <option value="INTENCION_NO_CLARA">INTENCION_NO_CLARA</option>
+          </select>
+        </div>
+      </div>
       <div style="overflow-x:auto;">
         <table>
           <thead>
@@ -302,7 +540,7 @@
             </tr>
           </thead>
           <tbody id="tablaBitacora">
-            <tr><td colspan="7" style="text-align:center; color:var(--muted);">Esperando reportes...</td></tr>
+            <tr><td colspan="7" style="text-align:center; color:var(--muted); padding:24px;">Esperando reportes de operadores...</td></tr>
           </tbody>
         </table>
       </div>
@@ -319,24 +557,48 @@
   let timerDashboard = null;
   let chartInt = null;
   let chartSent = null;
+  let ultimosRegistros = [];
+  let misEnvios = [];
 
-  function mostrarError(id, msg) {
+  async function verificarSaludServidor() {
+    const dot = document.getElementById("dotLogin");
+    const txt = document.getElementById("txtLoginStatus");
+    try {
+      const res = await fetch(`${API_BASE}/health`);
+      if (res.ok) {
+        dot.className = "dot ok";
+        txt.textContent = "Servidor activo y listo";
+      } else {
+        dot.className = "dot err";
+        txt.textContent = "Servidor con advertencia";
+      }
+    } catch {
+      dot.className = "dot err";
+      txt.textContent = "Sin conexión al servidor";
+    }
+  }
+
+  function togglePass() {
+    const inp = document.getElementById("loginPass");
+    inp.type = inp.type === "password" ? "text" : "password";
+  }
+
+  function mostrarAlerta(id, msg) {
     const el = document.getElementById(id);
     el.textContent = msg;
     el.style.display = "block";
   }
 
-  function ocultarError(id) {
-    const el = document.getElementById(id);
-    el.style.display = "none";
+  function ocultarAlerta(id) {
+    document.getElementById(id).style.display = "none";
   }
 
   async function iniciarSesion() {
-    ocultarError("loginError");
+    ocultarAlerta("loginError");
     const username = document.getElementById("loginUser").value.trim();
     const password = document.getElementById("loginPass").value;
     if (!username || !password) {
-      mostrarError("loginError", "Ingrese usuario y contraseña.");
+      mostrarAlerta("loginError", "Ingrese usuario y contraseña.");
       return;
     }
     try {
@@ -347,7 +609,7 @@
       });
       const data = await res.json();
       if (!res.ok) {
-        mostrarError("loginError", `Error ${res.status}: ${data.detail || "Credenciales inválidas"}`);
+        mostrarAlerta("loginError", `Error ${res.status}: ${data.detail || "Credenciales inválidas"}`);
         return;
       }
       authToken = data.access_token;
@@ -357,8 +619,8 @@
       sessionStorage.setItem("luis_role", authRole);
       sessionStorage.setItem("luis_user", authUser);
       renderVistaPorRol();
-    } catch (e) {
-      mostrarError("loginError", "No se pudo conectar con el servidor.");
+    } catch {
+      mostrarAlerta("loginError", "No se pudo conectar con el servidor.");
     }
   }
 
@@ -378,30 +640,37 @@
 
     if (!authToken) {
       document.getElementById("vistaLogin").classList.remove("hidden");
+      verificarSaludServidor();
       return;
     }
 
     if (authRole === "SUPERVISOR") {
-      document.getElementById("badgeSupervisor").textContent = `🛡️ ${authUser} (SUPERVISOR)`;
+      document.getElementById("badgeSupervisor").textContent = `🛡️ ${authUser} · SUPERVISOR`;
       document.getElementById("vistaSupervisor").classList.remove("hidden");
       actualizarDashboard();
       if (timerDashboard) clearInterval(timerDashboard);
       timerDashboard = setInterval(actualizarDashboard, 3000);
     } else {
-      document.getElementById("badgeOperador").textContent = `👤 ${authUser} (OPERADOR)`;
+      document.getElementById("badgeOperador").textContent = `👤 ${authUser} · OPERADOR`;
       document.getElementById("vistaOperador").classList.remove("hidden");
     }
   }
 
+  function actualizarContador() {
+    const len = document.getElementById("txtMensaje").value.length;
+    document.getElementById("charCount").textContent = `${len} caracteres`;
+  }
+
   function cargarEjemplo(texto) {
     document.getElementById("txtMensaje").value = texto;
+    actualizarContador();
   }
 
   async function enviarReporte() {
-    ocultarError("operadorError");
+    ocultarAlerta("operadorError");
     const texto = document.getElementById("txtMensaje").value.trim();
     if (!texto) {
-      mostrarError("operadorError", "Escriba un mensaje operativo antes de enviar.");
+      mostrarAlerta("operadorError", "Escribe un mensaje operativo antes de enviar.");
       return;
     }
     try {
@@ -415,36 +684,72 @@
       });
       const data = await res.json();
       if (!res.ok) {
-        mostrarError("operadorError", `Error ${res.status}: ${data.detail}`);
+        mostrarAlerta("operadorError", `Error ${res.status}: ${data.detail}`);
         if (res.status === 401) cerrarSesion();
         return;
       }
+
+      const esNoClara = data.intencion === "INTENCION_NO_CLARA";
+      const esEmo = data.intencion === "REACCION_EMOCIONAL";
+      const intClase = esNoClara ? "NO_CLARA" : (esEmo ? "EMOCIONAL" : "intent-badge");
+      const confPct = Math.round((data.confianza_intencion || 0) * 100);
       const ents = Object.keys(data.entidades || {}).length
         ? Object.entries(data.entidades).map(([k, v]) => `<span class="ent-tag"><span class="ent-key">${k}:</span> ${v}</span>`).join(" ")
         : "<span style='color:var(--muted)'>Ninguna</span>";
 
       document.getElementById("ticketContenido").innerHTML = `
-        <div><strong>Intención:</strong> <span class="badge intent-badge">${data.intencion}</span> (${data.confianza_intencion})</div>
-        <div><strong>Sentimiento:</strong> <span class="badge ${data.sentimiento}">${data.sentimiento}</span> — Reacción: ${data.reaccion_emocional}</div>
-        <div><strong>Entidades:</strong> ${ents}</div>
-        <div><strong>Acción Sugerida:</strong> <strong>${data.accion_sugerida}</strong></div>
+        <div style="color:var(--text); margin-bottom:10px;"><strong>Mensaje:</strong> "${data.texto_original}"</div>
+        <div style="margin-bottom:8px;">
+          <strong>Intención:</strong> <span class="badge ${intClase}">${data.intencion}</span>
+          <span style="font-size:12px; color:var(--text); margin-left:6px;">${confPct}% confianza</span>
+          <div class="conf-track"><div class="conf-fill" style="width:${confPct}%;"></div></div>
+        </div>
+        <div style="margin-bottom:8px;"><strong>Sentimiento:</strong> <span class="badge ${data.sentimiento}">${data.sentimiento}</span> <span style="font-size:12px;">(${data.reaccion_emocional})</span></div>
+        <div style="margin-bottom:8px;"><strong>Entidades:</strong> ${ents}</div>
+        <div><strong>Acción Sugerida:</strong> <span style="color:var(--accent); font-weight:700;">${data.accion_sugerida}</span></div>
       `;
-      document.getElementById("ticketResultado").classList.remove("hidden");
-    } catch (e) {
-      mostrarError("operadorError", "Error de conexión con el servidor.");
+
+      misEnvios.unshift(data);
+      misEnvios = misEnvios.slice(0, 6);
+      document.getElementById("misEnviosLista").innerHTML = misEnvios.map(m =>
+        `<div style="padding:7px 0; border-bottom:1px solid var(--card-border);">
+          <div style="color:var(--text); font-weight:600;">${m.texto_original}</div>
+          <div style="font-size:11px; margin-top:2px;">${m.hora} · <span style="color:var(--accent);">${m.intencion}</span> · ${m.accion_sugerida}</div>
+        </div>`
+      ).join("");
+    } catch {
+      mostrarAlerta("operadorError", "Error de conexión con el servidor.");
+    }
+  }
+
+  async function simularLoteOperador() {
+    const lote = [
+      "La camara de frio 2 subio a 9 grados con 120 cajas de uva red globe",
+      "Faja transportadora de linea 1 detenida por falla electrica",
+      "Cuantos pallets de esparrago verde quedan en almacen central",
+      "Programar salida de camion con 20 pallets lote L-804 al puerto",
+      "Humdad alta en packing 3 revisen las cajas de esparrago verde",
+      "Oe revisa eso rapido antes q vengan",
+      "Me siento estafado esto es una tonteria"
+    ];
+    for (const msg of lote) {
+      document.getElementById("txtMensaje").value = msg;
+      actualizarContador();
+      await enviarReporte();
+      await new Promise(r => setTimeout(r, 350));
     }
   }
 
   async function probarAccesoDenegado() {
-    ocultarError("operadorError");
+    ocultarAlerta("operadorError");
     try {
       const res = await fetch(`${API_BASE}/nlp/estadisticas`, {
         headers: { "Authorization": `Bearer ${authToken}` }
       });
       const data = await res.json();
-      mostrarError("operadorError", `HTTP ${res.status} — ${data.detail}`);
-    } catch (e) {
-      mostrarError("operadorError", "Error al probar el endpoint restringido.");
+      mostrarAlerta("operadorError", `🔒 Prueba de Seguridad Exitosa — HTTP ${res.status}: ${data.detail}`);
+    } catch {
+      mostrarAlerta("operadorError", "Error al probar el endpoint restringido.");
     }
   }
 
@@ -458,6 +763,9 @@
         return;
       }
       const stats = await res.json();
+      document.getElementById("subtituloSup").textContent =
+        `Monitoreo en tiempo real — Agroexportadora Ica · Última actualización: ${new Date().toLocaleTimeString()}`;
+
       document.getElementById("kpiTotal").textContent = stats.total_mensajes;
       document.getElementById("kpiConf").textContent = `${Math.round(stats.confianza_promedio * 100)}%`;
       document.getElementById("kpiDeriv").textContent = `${Math.round(stats.tasa_derivacion * 100)}%`;
@@ -465,35 +773,20 @@
 
       const ul = document.getElementById("listaEntidades");
       const ents = Object.entries(stats.entidades_frecuentes || {});
-      ul.innerHTML = ents.length ? ents.map(([k, v]) => `<li>${k} → <strong>${v}</strong></li>`).join("") : "<li>Sin datos aún</li>";
-
-      const tbody = document.getElementById("tablaBitacora");
-      if (!stats.bitacora_reciente || !stats.bitacora_reciente.length) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--muted);">Esperando reportes de operadores...</td></tr>';
+      if (!ents.length) {
+        ul.innerHTML = "<span style='color:var(--muted)'>Sin datos aún</span>";
       } else {
-        tbody.innerHTML = stats.bitacora_reciente.map(row => {
-          const esNoClara = row.intencion === "INTENCION_NO_CLARA";
-          const esEmocional = row.intencion === "REACCION_EMOCIONAL";
-          const intClase = esNoClara ? "NO_CLARA" : (esEmocional ? "EMOCIONAL" : "intent-badge");
-          const entsHtml = Object.keys(row.entidades || {}).length
-            ? Object.entries(row.entidades).map(([k, v]) => `<span class="ent-tag"><span class="ent-key">${k}:</span> ${v}</span>`).join(" ")
-            : '<span style="color:var(--muted)">(Ninguna)</span>';
-          let badgeEmo = "";
-          if (row.reaccion_emocional && row.reaccion_emocional.includes("ENOJO")) badgeEmo = '<div style="margin-top:3px;"><span class="badge NEGATIVO">🚨 ENOJO / QUEJA</span></div>';
-          else if (row.reaccion_emocional && row.reaccion_emocional.includes("SATISFACCION")) badgeEmo = '<div style="margin-top:3px;"><span class="badge POSITIVO">😊 SATISFACCIÓN</span></div>';
-          else if (row.reaccion_emocional && row.reaccion_emocional.includes("ANGUSTIA")) badgeEmo = '<div style="margin-top:3px;"><span class="badge NO_CLARA">😟 ANGUSTIA</span></div>';
-
-          return `<tr>
-            <td style="color:var(--muted);">${row.hora || "--:--"}</td>
-            <td>${row.usuario || "-"}</td>
-            <td><strong>${row.texto_original}</strong></td>
-            <td><span class="badge ${intClase}">${row.intencion}</span> <span style="font-size:11px; color:var(--muted);">(${row.confianza_intencion})</span></td>
-            <td><span class="badge ${row.sentimiento}">${row.sentimiento}</span>${badgeEmo}</td>
-            <td>${entsHtml}</td>
-            <td>${row.accion_sugerida}</td>
-          </tr>`;
-        }).join("");
+        const maxVal = Math.max(...ents.map(([, v]) => v), 1);
+        ul.innerHTML = ents.map(([k, v]) => `
+          <div class="ent-bar-row">
+            <div class="ent-bar-top"><span>${k}</span><strong>${v}</strong></div>
+            <div class="ent-bar-track"><div class="ent-bar-fill" style="width:${(v / maxVal) * 100}%;"></div></div>
+          </div>
+        `).join("");
       }
+
+      ultimosRegistros = stats.bitacora_reciente || [];
+      renderTablaBitacora();
 
       if (typeof Chart !== "undefined") {
         const ctx1 = document.getElementById("chartIntencion").getContext("2d");
@@ -504,11 +797,21 @@
             labels: Object.keys(stats.por_intencion).map(l => l.replace(/_/g, " ")),
             datasets: [{
               data: Object.values(stats.por_intencion),
-              backgroundColor: Object.keys(stats.por_intencion).map(l => l === "INTENCION_NO_CLARA" ? "#f59e0b" : (l === "REACCION_EMOCIONAL" ? "#a855f7" : "#38bdf8")),
-              borderRadius: 4
+              backgroundColor: Object.keys(stats.por_intencion).map(l =>
+                l === "INTENCION_NO_CLARA" ? "#f59e0b" : (l === "REACCION_EMOCIONAL" ? "#a855f7" : "#38bdf8")
+              ),
+              borderRadius: 6
             }]
           },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { ticks: { color: "#94a3b8", font: { size: 10 } }, grid: { display: false } },
+              y: { beginAtZero: true, ticks: { color: "#94a3b8", stepSize: 1 }, grid: { color: "rgba(148,163,184,0.1)" } }
+            }
+          }
         });
 
         const ctx2 = document.getElementById("chartSentimiento").getContext("2d");
@@ -517,14 +820,89 @@
           type: "doughnut",
           data: {
             labels: Object.keys(stats.por_sentimiento),
-            datasets: [{ data: Object.values(stats.por_sentimiento), backgroundColor: ["#10b981", "#94a3b8", "#ef4444"] }]
+            datasets: [{
+              data: Object.values(stats.por_sentimiento),
+              backgroundColor: ["#10b981", "#94a3b8", "#ef4444"],
+              borderColor: "#111b2e",
+              borderWidth: 3
+            }]
           },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom", labels: { color: "#94a3b8" } } } }
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: "64%",
+            plugins: { legend: { position: "bottom", labels: { color: "#cbd5e1", font: { size: 11 } } } }
+          }
         });
       }
     } catch (e) {
       console.error(e);
     }
+  }
+
+  function renderTablaBitacora() {
+    const q = (document.getElementById("filtroTexto").value || "").toLowerCase();
+    const fInt = document.getElementById("filtroIntencion").value;
+    const filtrados = ultimosRegistros.filter(r => {
+      const okInt = !fInt || r.intencion === fInt;
+      const okTxt = !q || (r.texto_original || "").toLowerCase().includes(q)
+        || JSON.stringify(r.entidades || {}).toLowerCase().includes(q)
+        || (r.usuario || "").toLowerCase().includes(q);
+      return okInt && okTxt;
+    });
+
+    const tbody = document.getElementById("tablaBitacora");
+    if (!filtrados.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--muted); padding:24px;">No hay registros que coincidan.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = filtrados.map(row => {
+      const esNoClara = row.intencion === "INTENCION_NO_CLARA";
+      const esEmocional = row.intencion === "REACCION_EMOCIONAL";
+      const intClase = esNoClara ? "NO_CLARA" : (esEmocional ? "EMOCIONAL" : "intent-badge");
+      const entsHtml = Object.keys(row.entidades || {}).length
+        ? Object.entries(row.entidades).map(([k, v]) => `<span class="ent-tag"><span class="ent-key">${k}:</span> ${v}</span>`).join(" ")
+        : '<span style="color:var(--muted)">(Ninguna)</span>';
+
+      let badgeEmo = "";
+      if (row.reaccion_emocional && row.reaccion_emocional.includes("ENOJO")) badgeEmo = '<div style="margin-top:4px;"><span class="badge NEGATIVO">🚨 ENOJO / QUEJA</span></div>';
+      else if (row.reaccion_emocional && row.reaccion_emocional.includes("SATISFACCION")) badgeEmo = '<div style="margin-top:4px;"><span class="badge POSITIVO">😊 SATISFACCIÓN</span></div>';
+      else if (row.reaccion_emocional && row.reaccion_emocional.includes("ANGUSTIA")) badgeEmo = '<div style="margin-top:4px;"><span class="badge NO_CLARA">😟 ANGUSTIA</span></div>';
+
+      return `<tr>
+        <td style="color:var(--muted); white-space:nowrap;">${row.hora || "--:--"}</td>
+        <td><span class="ent-tag">${row.usuario || "-"}</span></td>
+        <td><strong>${row.texto_original}</strong></td>
+        <td><span class="badge ${intClase}">${row.intencion}</span> <span style="font-size:11px; color:var(--muted);">(${row.confianza_intencion})</span></td>
+        <td><span class="badge ${row.sentimiento}">${row.sentimiento}</span>${badgeEmo}</td>
+        <td>${entsHtml}</td>
+        <td style="font-weight:600;">${row.accion_sugerida}</td>
+      </tr>`;
+    }).join("");
+  }
+
+  function exportarCSV() {
+    if (!ultimosRegistros.length) return;
+    const filas = [["Hora", "Usuario", "Mensaje", "Intencion", "Confianza", "Sentimiento", "Entidades", "Accion"]];
+    ultimosRegistros.forEach(r => {
+      filas.push([
+        r.hora || "",
+        r.usuario || "",
+        `"${(r.texto_original || "").replace(/"/g, '""')}"`,
+        r.intencion || "",
+        r.confianza_intencion || "",
+        r.sentimiento || "",
+        `"${JSON.stringify(r.entidades || {}).replace(/"/g, '""')}"`,
+        r.accion_sugerida || ""
+      ]);
+    });
+    const csv = filas.map(f => f.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `bitacora_luis_ica_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
   }
 
   async function reiniciarStats() {

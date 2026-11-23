@@ -57,19 +57,26 @@ def extraer_entidades(texto_original: str) -> dict:
 
     # 2. Extracción de PRODUCTO
     match_prod = re.search(
-        r"\b(uva\s*(?:red\s*globe|sweet\s*globe|crimson|thompson|autumn\s*crisp|sugarone)?|esparrago[s]?\s*(?:verde|blanco)?|palta\s*(?:hass)?|arandano[s]?|mandarina[s]?|granada[s]?|mango[s]?)\b",
+        r"\b(uva\s*(?:red\s*globe|sweet\s*globe|crimson|thompson|autumn\s*crisp|sugarone)?|esparrago[s]?\s*(?:verde|blanco)?|palta\s*(?:hass)?|arandano[s]?|mandarina[s]?|granada[s]?|mango[s]?|productos\s*de\s*frio|fruta)\b",
         texto_norm,
     )
     if match_prod:
         entidades["PRODUCTO"] = match_prod.group(1).strip()
 
-    # 3. Extracción de CANTIDAD
+    # 3. Extracción de CANTIDAD (con número) o INSUMO (sin número, ej. "cuantos pallets hay")
     match_cant = re.search(
         r"\b(\d+(?:\.\d+)?\s*(?:cajas|pallets|jabas|kg|kilos|toneladas|contenedores|bolsas|racimos|unidades|bultos|parihuelas|bins|sacos))\b",
         texto_norm,
     )
     if match_cant:
         entidades["CANTIDAD"] = match_cant.group(1).strip()
+    else:
+        match_insumo = re.search(
+            r"\b(pallets|cajas|jabas|etiquetas|zunchos|bolsas|esquineros|bins|parihuelas)\b",
+            texto_norm,
+        )
+        if match_insumo:
+            entidades["INSUMO"] = match_insumo.group(1).strip()
 
     # 4. Extracción de CÓDIGO DE LOTE / GUÍA
     match_lote = re.search(
